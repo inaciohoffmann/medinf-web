@@ -386,7 +386,7 @@ export default function Perfil() {
             )}
 
             <div style={{ marginBottom: "16px" }}>
-              <label style={{ display: "block", fontSize: "13px", fontWeight: 600, color: "#0f1117", marginBottom: "8px", textTransform: "uppercase", letterSpacing: "0.3px", color: "#7c7f8e" }}>
+              <label style={{ display: "block", fontSize: "13px", fontWeight: 600, color: "#7c7f8e", marginBottom: "8px", textTransform: "uppercase", letterSpacing: "0.3px" }}>
                 Arquivo .pfx
               </label>
               <input
