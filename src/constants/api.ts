@@ -4,7 +4,6 @@ export const ENDPOINTS = {
   LOGIN: "/api/v1/auth/login",
   CADASTRO: "/api/v1/auth/cadastro",
   ME: "/api/v1/auth/me",
-  PERFIL: "/api/v1/medico/perfil",
   RECUPERAR_SENHA: "/api/v1/auth/recuperar-senha",
   REDEFINIR_SENHA: "/api/v1/auth/redefinir-senha",
   ASSINATURA_STATUS: "/api/v1/assinatura/status",
