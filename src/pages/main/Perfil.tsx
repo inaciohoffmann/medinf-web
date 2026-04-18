@@ -15,6 +15,7 @@ export default function Perfil() {
   const [modalPerfilAberto, setModalPerfilAberto] = useState(false);
   const [salvando, setSalvando] = useState(false);
   const [buscandoCnpj, setBuscandoCnpj] = useState(false);
+  const [servicosSugeridos, setServicosSugeridos] = useState<any[]>([]);
   const [mensagemPerfil, setMensagemPerfil] = useState<{ tipo: "sucesso" | "erro"; texto: string } | null>(null);
   const [formPerfil, setFormPerfil] = useState({
     nome: "", crm: "", documento: "", tipo_documento: "cpf",
@@ -128,6 +129,18 @@ export default function Perfil() {
         codigo_tributario_municipio: dados.sugestao_fiscal?.codigo_tributario_municipio || prev.codigo_tributario_municipio,
         aliquota_iss: dados.sugestao_fiscal?.aliquota_iss || prev.aliquota_iss,
       }));
+      if (dados.servicos && dados.servicos.length > 0) {
+        setServicosSugeridos(dados.servicos);
+        // Preenche automaticamente com o serviço principal
+        const principal = dados.servicos.find((s: any) => s.principal) || dados.servicos[0];
+        setFormPerfil(prev => ({
+          ...prev,
+          nome: dados.razao_social || prev.nome,
+          codigo_servico: principal.codigo_servico || prev.codigo_servico,
+          codigo_tributario_municipio: principal.codigo_tributario_municipio || prev.codigo_tributario_municipio,
+          aliquota_iss: principal.aliquota_iss || prev.aliquota_iss,
+        }));
+      }
       setMensagemPerfil({
         tipo: "sucesso",
         texto: `✓ Dados encontrados! CNAE: ${dados.cnae}. ${dados.sugestao_fiscal?.justificativa || ""}`,
@@ -734,6 +747,51 @@ export default function Perfil() {
                 {buscandoCnpj ? "⏳ Buscando..." : "🔍 Buscar dados do CNPJ"}
               </button>
             </div>
+
+            {servicosSugeridos.length > 0 && (
+              <div style={{ marginBottom: "16px" }}>
+                <label style={{ display: "block", fontSize: "13px", fontWeight: 600, color: "#7c7f8e", marginBottom: "8px", textTransform: "uppercase", letterSpacing: "0.3px" }}>
+                  Selecionar Serviço
+                </label>
+                <p style={{ fontSize: "12px", color: "#7c7f8e", margin: "0 0 8px 0" }}>
+                  Escolha o serviço que melhor descreve sua atividade:
+                </p>
+                {servicosSugeridos.map((servico, index) => (
+                  <div
+                    key={index}
+                    onClick={() => setFormPerfil(prev => ({
+                      ...prev,
+                      codigo_servico: servico.codigo_servico,
+                      codigo_tributario_municipio: servico.codigo_tributario_municipio || prev.codigo_tributario_municipio,
+                      aliquota_iss: servico.aliquota_iss,
+                    }))}
+                    style={{
+                      padding: "12px",
+                      borderRadius: "8px",
+                      border: `1.5px solid ${formPerfil.codigo_servico === servico.codigo_servico ? "#1a6b4a" : "rgba(15,17,23,0.1)"}`,
+                      backgroundColor: formPerfil.codigo_servico === servico.codigo_servico ? "#e8f4ef" : "#fff",
+                      cursor: "pointer",
+                      marginBottom: "8px",
+                      transition: "all 0.2s ease",
+                    }}
+                  >
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <span style={{ fontSize: "13px", fontWeight: 600, color: "#0f1117" }}>
+                        {servico.codigo_servico} — {servico.descricao}
+                      </span>
+                      {servico.principal && (
+                        <span style={{ fontSize: "11px", backgroundColor: "#e8f4ef", color: "#1a6b4a", padding: "2px 8px", borderRadius: "100px", fontWeight: 600 }}>
+                          Principal
+                        </span>
+                      )}
+                    </div>
+                    <span style={{ fontSize: "12px", color: "#7c7f8e" }}>
+                      Alíquota: {servico.aliquota_iss}%
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
 
             {/* Dados Fiscais */}
             <p style={{ fontSize: "11px", fontWeight: 700, color: "#7c7f8e", textTransform: "uppercase", letterSpacing: "0.5px", margin: "0 0 12px 0" }}>Dados Fiscais</p>
