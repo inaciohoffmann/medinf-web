@@ -15,6 +15,9 @@ export default function RevisarNF() {
   const [valor, setValor] = useState(String(dados.valor || ""));
   const [descricao, setDescricao] = useState(dados.descricao_servico || "");
   const [municipio, setMunicipio] = useState(medico?.municipios?.[0]?.codigo_ibge || "");
+  const [codigoServico, setCodigoServico] = useState(dados.codigo_servico || medico?.codigo_servico || "");
+  const [codigoTributario, setCodigoTributario] = useState(dados.codigo_tributario_municipio || medico?.codigo_tributario_municipio || "");
+  const [aliquota, setAliquota] = useState(dados.aliquota_iss || medico?.aliquota_iss || "");
   const [carregando, setCarregando] = useState(false);
   const [erro, setErro] = useState("");
 
@@ -30,6 +33,8 @@ export default function RevisarNF() {
         valor: parseFloat(valor.replace(",", ".")),
         descricao_servico: descricao,
         codigo_ibge_municipio: municipio,
+        codigo_servico: codigoServico || undefined,
+        codigo_tributario_municipio: codigoTributario || undefined,
       });
       navigate("/sucesso", { state: { nota: response.data } });
     } catch (error: any) {
@@ -77,6 +82,24 @@ export default function RevisarNF() {
               <option key={m.codigo_ibge} value={m.codigo_ibge}>{m.nome_municipio} - {m.uf}</option>
             ))}
           </select>
+
+          <div style={{ backgroundColor: "#f7f6f2", borderRadius: "10px", padding: "14px 16px", marginBottom: "16px" }}>
+            <p style={{ fontSize: "12px", fontWeight: 600, color: "#7c7f8e", margin: "0 0 8px 0" }}>DADOS FISCAIS</p>
+            <p style={{ fontSize: "13px", color: "#3d3f4a", margin: "0 0 4px 0" }}>
+              Código serviço: <strong>{codigoServico || "⚠ Não configurado"}</strong>
+            </p>
+            <p style={{ fontSize: "13px", color: "#3d3f4a", margin: "0 0 4px 0" }}>
+              Código tributário: <strong>{codigoTributario || "⚠ Não configurado"}</strong>
+            </p>
+            <p style={{ fontSize: "13px", color: "#3d3f4a", margin: 0 }}>
+              Alíquota ISS: <strong>{aliquota ? `${aliquota}%` : "⚠ Não configurada"}</strong>
+            </p>
+            {(!codigoServico || !codigoTributario) && (
+              <a href="/perfil" style={{ display: "inline-block", marginTop: "8px", fontSize: "12px", color: "#1a6b4a", fontWeight: 600 }}>
+                → Configurar no perfil
+              </a>
+            )}
+          </div>
         </div>
 
         <button onClick={emitirNF} disabled={carregando} style={{ width: "100%", padding: "16px", backgroundColor: "#1a6b4a", color: "#ffffff", border: "none", borderRadius: "100px", fontSize: "16px", fontWeight: 600, cursor: carregando ? "not-allowed" : "pointer", opacity: carregando ? 0.7 : 1 }}>
