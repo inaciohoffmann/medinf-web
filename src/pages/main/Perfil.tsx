@@ -7,7 +7,7 @@ export default function Perfil() {
   const { medico, fazerLogout, recarregarPerfil } = useAuth();
   const [certificado, setCertificado] = useState<any>(null);
   const [carregando, setCarregando] = useState(true);
-  const [modalAberto, setModalAberto] = useState(false);
+  const [modalCertAberto, setModalCertAberto] = useState(false);
   const [arquivo, setArquivo] = useState<File | null>(null);
   const [senha, setSenha] = useState("");
   const [enviando, setEnviando] = useState(false);
@@ -83,7 +83,7 @@ export default function Perfil() {
       });
       setMensagem({ tipo: "sucesso", texto: "Certificado enviado com sucesso!" });
       setTimeout(() => {
-        setModalAberto(false);
+        setModalCertAberto(false);
         setArquivo(null);
         setSenha("");
         setMensagem(null);
@@ -170,7 +170,7 @@ export default function Perfil() {
   };
 
   const fecharModal = () => {
-    setModalAberto(false);
+    setModalCertAberto(false);
     setArquivo(null);
     setSenha("");
     setMensagem(null);
@@ -412,7 +412,7 @@ export default function Perfil() {
 
                 {/* Botão Ação */}
                 <button
-                  onClick={() => setModalAberto(true)}
+                  onClick={() => setModalCertAberto(true)}
                   style={{
                     width: "100%",
                     padding: "12px 16px",
@@ -468,7 +468,7 @@ export default function Perfil() {
       </div>
 
       {/* Modal Certificado */}
-      {modalAberto && (
+      {modalCertAberto && (
         <div
           style={{
             position: "fixed",
