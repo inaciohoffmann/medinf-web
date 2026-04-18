@@ -16,6 +16,9 @@ export default function Perfil() {
   const [salvando, setSalvando] = useState(false);
   const [buscandoCnpj, setBuscandoCnpj] = useState(false);
   const [servicosSugeridos, setServicosSugeridos] = useState<any[]>([]);
+  const [fotoPerfil, setFotoPerfil] = useState<string | null>(
+    localStorage.getItem("foto_perfil")
+  );
   const [mensagemPerfil, setMensagemPerfil] = useState<{ tipo: "sucesso" | "erro"; texto: string } | null>(null);
   const [formPerfil, setFormPerfil] = useState({
     nome: "", crm: "", documento: "", tipo_documento: "cpf",
@@ -64,6 +67,18 @@ export default function Perfil() {
     if (certificado.vencido) return "Vencido";
     if (certificado.vencendo_em_breve) return `Vence em ${certificado.dias_restantes} dias`;
     return `Válido por ${certificado.dias_restantes} dias`;
+  };
+
+  const escolherFoto = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const base64 = reader.result as string;
+      localStorage.setItem("foto_perfil", base64);
+      setFotoPerfil(base64);
+    };
+    reader.readAsDataURL(file);
   };
 
   const enviarCertificado = async () => {
@@ -214,18 +229,18 @@ export default function Perfil() {
             boxShadow: "0 1px 3px rgba(0, 0, 0, 0.06)"
           }}>
             <div style={{ display: "flex", alignItems: "flex-start", gap: "16px", marginBottom: "24px" }}>
-              <div style={{
-                width: "56px",
-                height: "56px",
-                borderRadius: "28px",
-                backgroundColor: "#e8f4ef",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: "28px",
-                flexShrink: 0
-              }}>
-                👨‍⚕️
+              <div style={{ position: "relative", width: "56px", height: "56px", flexShrink: 0 }}>
+                <div style={{ width: "56px", height: "56px", borderRadius: "28px", backgroundColor: "#e8f4ef", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "28px", overflow: "hidden" }}>
+                  {fotoPerfil ? (
+                    <img src={fotoPerfil} alt="Perfil" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  ) : (
+                    "👨‍⚕️"
+                  )}
+                </div>
+                <label style={{ position: "absolute", bottom: 0, right: 0, width: "20px", height: "20px", borderRadius: "50%", backgroundColor: "#1a6b4a", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", fontSize: "10px" }}>
+                  ✏️
+                  <input type="file" accept="image/*" onChange={escolherFoto} style={{ display: "none" }} />
+                </label>
               </div>
               <div style={{ flex: 1 }}>
                 <h2 style={{ fontSize: "18px", fontWeight: 700, color: "#0f1117", margin: "0 0 4px 0" }}>
