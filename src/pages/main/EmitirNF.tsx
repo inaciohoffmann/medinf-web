@@ -84,7 +84,7 @@ export default function EmitirNF() {
         codigo_servico: formManual.codigo_servico || undefined,
         codigo_tributario_municipio: formManual.codigo_tributario_municipio || undefined,
       });
-      navigate("/sucesso-nf", { state: { nota: response.data } });
+      navigate("/sucesso", { state: { nota: response.data } });
     } catch (error: any) {
       setErro(error.response?.data?.detail || "Erro ao emitir nota.");
     } finally {

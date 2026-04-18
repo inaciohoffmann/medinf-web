@@ -8,6 +8,7 @@ export default function Home() {
   const [stats, setStats] = useState<any>(null);
   const [certificado, setCertificado] = useState<any>(null);
   const [notas, setNotas] = useState<any[]>([]);
+  const [notasPorDiaLocal, setNotasPorDiaLocal] = useState<any>({});
   const [notasProcessando, setNotasProcessando] = useState<any[]>([]);
   const [cancelando, setCancelando] = useState<string | null>(null);
   const [carregando, setCarregando] = useState(true);
@@ -52,6 +53,15 @@ export default function Home() {
       setStats(statsRes.data);
       setCertificado(certRes.data);
       setNotas(notasRes.data);
+      // Agrupa todas as notas por dia para o calendário (incluindo pendentes)
+      const todasNotas = notasRes.data;
+      const porDia: any = {};
+      todasNotas.forEach((nota: any) => {
+        const dia = new Date(nota.criado_em).getDate();
+        if (!porDia[dia]) porDia[dia] = [];
+        porDia[dia].push(nota);
+      });
+      setNotasPorDiaLocal(porDia);
       const pendentes = notasRes.data.filter((n: any) => n.status === "pendente");
       setNotasProcessando(pendentes);
     } catch (error) {
@@ -263,7 +273,7 @@ export default function Home() {
         {/* Calendário e Notas lado a lado */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px", marginBottom: "32px" }}>
           {/* Calendário */}
-          <CalendarioMensal mes={mesAtual} ano={anoAtual} notasPorDia={stats?.notas_por_dia || {}} />
+          <CalendarioMensal mes={mesAtual} ano={anoAtual} notasPorDia={notasPorDiaLocal} />
 
           {/* Lista de notas */}
           {notas.length > 0 && (
