@@ -8,6 +8,7 @@ export default function Home() {
   const [stats, setStats] = useState<any>(null);
   const [certificado, setCertificado] = useState<any>(null);
   const [notas, setNotas] = useState<any[]>([]);
+  const [notasProcessando, setNotasProcessando] = useState<any[]>([]);
   const [carregando, setCarregando] = useState(true);
 
   const mesAtual = new Date().getMonth() + 1;
@@ -17,6 +18,28 @@ export default function Home() {
   useEffect(() => {
     carregarDados();
   }, []);
+
+  useEffect(() => {
+    if (notasProcessando.length === 0) return;
+    const interval = setInterval(async () => {
+      const atualizadas = await Promise.all(
+        notasProcessando.map(async (nota) => {
+          try {
+            const res = await api.get(`/api/v1/notas/${nota.id}`);
+            return res.data;
+          } catch {
+            return nota;
+          }
+        })
+      );
+      const aindaPendentes = atualizadas.filter((n) => n.status === "pendente");
+      setNotasProcessando(aindaPendentes);
+      if (aindaPendentes.length < notasProcessando.length) {
+        carregarDados(); // Recarrega tudo quando alguma nota for autorizada
+      }
+    }, 15000);
+    return () => clearInterval(interval);
+  }, [notasProcessando]);
 
   const carregarDados = async () => {
     try {
@@ -28,6 +51,8 @@ export default function Home() {
       setStats(statsRes.data);
       setCertificado(certRes.data);
       setNotas(notasRes.data);
+      const pendentes = notasRes.data.filter((n: any) => n.status === "pendente");
+      setNotasProcessando(pendentes);
     } catch (error) {
       console.error(error);
     } finally {
@@ -265,6 +290,25 @@ export default function Home() {
             </div>
           )}
         </div>
+
+        {notasProcessando.length > 0 && (
+          <div style={{ backgroundColor: "#fffbeb", borderRadius: "12px", padding: "20px 24px", marginBottom: "24px", border: "1px solid rgba(217,119,6,0.2)", boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}>
+            <h3 style={{ fontSize: "15px", fontWeight: 600, color: "#92400e", marginBottom: "12px", margin: "0 0 12px 0" }}>
+              ⏳ Notas em processamento ({notasProcessando.length})
+            </h3>
+            {notasProcessando.map((nota) => (
+              <div key={nota.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0", borderBottom: "1px solid rgba(217,119,6,0.1)" }}>
+                <div>
+                  <p style={{ fontSize: "14px", fontWeight: 500, color: "#92400e", margin: 0 }}>{nota.paciente_nome}</p>
+                  <p style={{ fontSize: "12px", color: "#b45309", margin: 0 }}>Aguardando prefeitura...</p>
+                </div>
+                <p style={{ fontSize: "14px", fontWeight: 600, color: "#92400e", margin: 0 }}>
+                  R$ {Number(nota.valor).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* FAB - Floating Action Button */}
