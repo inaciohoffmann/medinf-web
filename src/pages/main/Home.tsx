@@ -9,6 +9,7 @@ export default function Home() {
   const [certificado, setCertificado] = useState<any>(null);
   const [notas, setNotas] = useState<any[]>([]);
   const [notasProcessando, setNotasProcessando] = useState<any[]>([]);
+  const [cancelando, setCancelando] = useState<string | null>(null);
   const [carregando, setCarregando] = useState(true);
 
   const mesAtual = new Date().getMonth() + 1;
@@ -57,6 +58,19 @@ export default function Home() {
       console.error(error);
     } finally {
       setCarregando(false);
+    }
+  };
+
+  const cancelarNota = async (notaId: string) => {
+    if (!window.confirm("Tem certeza que deseja cancelar esta nota?")) return;
+    setCancelando(notaId);
+    try {
+      await api.delete(`/api/v1/notas/${notaId}/cancelar`);
+      await carregarDados();
+    } catch (error: any) {
+      alert(error.response?.data?.detail || "Erro ao cancelar nota");
+    } finally {
+      setCancelando(null);
     }
   };
 
@@ -281,9 +295,32 @@ export default function Home() {
                         NF {nota.numero_nf || "—"} · {new Date(nota.emitida_em || nota.criado_em).toLocaleDateString("pt-BR")}
                       </p>
                     </div>
-                    <p style={{ fontSize: "14px", fontWeight: 600, color: "#1a6b4a", marginLeft: "12px", whiteSpace: "nowrap", margin: 0 }}>
-                      R$ {Number(nota.valor).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                    </p>
+                    <div style={{ display: "flex", alignItems: "center", marginLeft: "12px" }}>
+                      <p style={{ fontSize: "14px", fontWeight: 600, color: "#1a6b4a", whiteSpace: "nowrap", margin: 0 }}>
+                        R$ {Number(nota.valor).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                      </p>
+                      {(nota.status === "emitida" || nota.status === "pendente") && (
+                        <button
+                          onClick={() => cancelarNota(nota.id)}
+                          disabled={cancelando === nota.id}
+                          style={{
+                            marginLeft: "8px",
+                            padding: "4px 10px",
+                            backgroundColor: "rgba(220,38,38,0.08)",
+                            color: "#dc2626",
+                            border: "none",
+                            borderRadius: "6px",
+                            fontSize: "12px",
+                            fontWeight: 600,
+                            cursor: cancelando === nota.id ? "not-allowed" : "pointer",
+                            opacity: cancelando === nota.id ? 0.6 : 1,
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          {cancelando === nota.id ? "..." : "Cancelar"}
+                        </button>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>
