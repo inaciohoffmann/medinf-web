@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./hooks/useAuth";
 import Login from "./pages/auth/Login";
@@ -26,6 +26,22 @@ function TelaAssinatura() {
       setVerificando(false);
     }
   };
+
+  useEffect(() => {
+    const handleFocus = async () => {
+      try {
+        await recarregarPerfil();
+      } catch (e) {}
+    };
+    window.addEventListener("focus", handleFocus);
+    return () => window.removeEventListener("focus", handleFocus);
+  }, []);
+
+  useEffect(() => {
+    if (assinaturaAtiva) {
+      window.location.href = "/";
+    }
+  }, [assinaturaAtiva]);
 
   return (
     <div style={{ minHeight: "100vh", backgroundColor: "#f7f6f2", display: "flex", alignItems: "center", justifyContent: "center" }}>
