@@ -4,7 +4,7 @@ import { ENDPOINTS } from "../../constants/api";
 import { useAuth } from "../../hooks/useAuth";
 
 export default function Perfil() {
-  const { medico, fazerLogout } = useAuth();
+  const { medico, fazerLogout, recarregarPerfil } = useAuth();
   const [certificado, setCertificado] = useState<any>(null);
   const [carregando, setCarregando] = useState(true);
   const [modalAberto, setModalAberto] = useState(false);
@@ -12,6 +12,29 @@ export default function Perfil() {
   const [senha, setSenha] = useState("");
   const [enviando, setEnviando] = useState(false);
   const [mensagem, setMensagem] = useState<{ tipo: "sucesso" | "erro"; texto: string } | null>(null);
+  const [modalPerfilAberto, setModalPerfilAberto] = useState(false);
+  const [salvando, setSalvando] = useState(false);
+  const [mensagemPerfil, setMensagemPerfil] = useState<{ tipo: "sucesso" | "erro"; texto: string } | null>(null);
+  const [formPerfil, setFormPerfil] = useState({
+    nome: "", crm: "", documento: "", tipo_documento: "cpf",
+    inscricao_municipal: "", aliquota_iss: "",
+    codigo_tributario_municipio: "", codigo_servico: "",
+  });
+
+  useEffect(() => {
+    if (medico) {
+      setFormPerfil({
+        nome: medico.nome || "",
+        crm: medico.crm || "",
+        documento: medico.documento || "",
+        tipo_documento: medico.tipo_documento || "cpf",
+        inscricao_municipal: medico.inscricao_municipal || "",
+        aliquota_iss: medico.aliquota_iss || "",
+        codigo_tributario_municipio: medico.codigo_tributario_municipio || "",
+        codigo_servico: medico.codigo_servico || "",
+      });
+    }
+  }, [medico]);
 
   useEffect(() => {
     api.get(ENDPOINTS.CERTIFICADO_STATUS)
@@ -83,6 +106,26 @@ export default function Perfil() {
       });
     } finally {
       setEnviando(false);
+    }
+  };
+
+  const salvarPerfil = async () => {
+    setSalvando(true);
+    setMensagemPerfil(null);
+    try {
+      await api.patch(ENDPOINTS.PERFIL, formPerfil);
+      setMensagemPerfil({ tipo: "sucesso", texto: "Perfil atualizado com sucesso!" });
+      if (recarregarPerfil) await recarregarPerfil();
+      setTimeout(() => {
+        setModalPerfilAberto(false);
+        setMensagemPerfil(null);
+      }, 1500);
+    } catch (error: any) {
+      let msg = "Erro ao salvar perfil";
+      if (error.response?.data?.detail) msg = error.response.data.detail;
+      setMensagemPerfil({ tipo: "erro", texto: msg });
+    } finally {
+      setSalvando(false);
     }
   };
 
@@ -159,6 +202,27 @@ export default function Perfil() {
               </div>
             </div>
 
+            <button
+              onClick={() => setModalPerfilAberto(true)}
+              style={{
+                width: "100%",
+                padding: "10px 16px",
+                backgroundColor: "rgba(26, 107, 74, 0.06)",
+                color: "#1a6b4a",
+                border: "1.5px solid rgba(26, 107, 74, 0.2)",
+                borderRadius: "10px",
+                fontSize: "14px",
+                fontWeight: 600,
+                cursor: "pointer",
+                marginBottom: "16px",
+                transition: "all 0.2s ease"
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(26, 107, 74, 0.12)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(26, 107, 74, 0.06)"; }}
+            >
+              ✏️ Editar dados
+            </button>
+
             {medico?.municipios && medico.municipios.length > 0 && (
               <div style={{ borderTop: "1px solid rgba(15, 17, 23, 0.08)", paddingTop: "16px" }}>
                 <p style={{ fontSize: "12px", fontWeight: 600, color: "#7c7f8e", margin: "0 0 12px 0" }}>
@@ -187,6 +251,48 @@ export default function Perfil() {
                 </div>
               </div>
             )}
+          </div>
+        </div>
+
+        {/* Section: Dados Fiscais */}
+        <div style={{ marginBottom: "32px" }}>
+          <p style={{ fontSize: "12px", fontWeight: 600, color: "#7c7f8e", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "12px" }}>
+            Dados Fiscais
+          </p>
+          <div style={{ backgroundColor: "#ffffff", borderRadius: "12px", padding: "24px", boxShadow: "0 1px 3px rgba(0, 0, 0, 0.06)" }}>
+            {[
+              { label: "Inscrição Municipal", value: medico?.inscricao_municipal },
+              { label: "Alíquota ISS (%)", value: medico?.aliquota_iss },
+              { label: "Código Tributário Municipal", value: medico?.codigo_tributario_municipio },
+              { label: "Código do Serviço", value: medico?.codigo_servico },
+            ].map(({ label, value }) => (
+              <div key={label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0", borderBottom: "1px solid rgba(15, 17, 23, 0.06)" }}>
+                <span style={{ fontSize: "13px", color: "#7c7f8e", fontWeight: 500 }}>{label}</span>
+                <span style={{ fontSize: "13px", color: value ? "#0f1117" : "#d97706", fontWeight: value ? 400 : 500 }}>
+                  {value || "⚠ Não informado"}
+                </span>
+              </div>
+            ))}
+            <button
+              onClick={() => setModalPerfilAberto(true)}
+              style={{
+                marginTop: "20px",
+                width: "100%",
+                padding: "12px 16px",
+                backgroundColor: "rgba(26, 107, 74, 0.06)",
+                color: "#1a6b4a",
+                border: "1.5px solid rgba(26, 107, 74, 0.2)",
+                borderRadius: "10px",
+                fontSize: "14px",
+                fontWeight: 600,
+                cursor: "pointer",
+                transition: "all 0.2s ease"
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(26, 107, 74, 0.12)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(26, 107, 74, 0.06)"; }}
+            >
+              ✏️ Editar dados fiscais
+            </button>
           </div>
         </div>
 
@@ -483,6 +589,155 @@ export default function Perfil() {
                 }}
               >
                 {enviando ? "⏳ Enviando..." : "✓ Enviar certificado"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Editar Perfil */}
+      {modalPerfilAberto && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0, left: 0, right: 0, bottom: 0,
+            backgroundColor: "rgba(15, 17, 23, 0.4)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 1000,
+            padding: "16px"
+          }}
+          onClick={() => setModalPerfilAberto(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              backgroundColor: "#ffffff",
+              borderRadius: "16px",
+              padding: "32px",
+              maxWidth: "480px",
+              width: "100%",
+              boxShadow: "0 8px 32px rgba(0, 0, 0, 0.12)",
+              maxHeight: "90vh",
+              overflowY: "auto"
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "24px" }}>
+              <div style={{
+                width: "40px", height: "40px", borderRadius: "20px",
+                backgroundColor: "#e8f4ef",
+                display: "flex", alignItems: "center", justifyContent: "center", fontSize: "20px"
+              }}>✏️</div>
+              <h2 style={{ fontSize: "18px", fontWeight: 700, color: "#0f1117", margin: 0 }}>Editar Perfil</h2>
+            </div>
+
+            {mensagemPerfil && (
+              <div style={{
+                padding: "12px 16px", borderRadius: "10px", marginBottom: "20px",
+                backgroundColor: mensagemPerfil.tipo === "sucesso" ? "#dcfce7" : "#fee2e2",
+                color: mensagemPerfil.tipo === "sucesso" ? "#134e4a" : "#991b1b",
+                fontSize: "13px", fontWeight: 500,
+                borderLeft: `3px solid ${mensagemPerfil.tipo === "sucesso" ? "#16a34a" : "#dc2626"}`
+              }}>
+                {mensagemPerfil.tipo === "sucesso" ? "✓ " : "⚠ "}{mensagemPerfil.texto}
+              </div>
+            )}
+
+            {/* Dados Pessoais */}
+            <p style={{ fontSize: "11px", fontWeight: 700, color: "#7c7f8e", textTransform: "uppercase", letterSpacing: "0.5px", margin: "0 0 12px 0" }}>Dados Pessoais</p>
+
+            {([
+              { label: "Nome", field: "nome", type: "text", placeholder: "Seu nome completo" },
+              { label: "CRM", field: "crm", type: "text", placeholder: "Ex: 123456/SP" },
+            ] as const).map(({ label, field, type, placeholder }) => (
+              <div key={field} style={{ marginBottom: "14px" }}>
+                <label style={{ display: "block", fontSize: "13px", fontWeight: 600, color: "#7c7f8e", marginBottom: "6px", textTransform: "uppercase", letterSpacing: "0.3px" }}>{label}</label>
+                <input
+                  type={type}
+                  value={formPerfil[field]}
+                  onChange={(e) => setFormPerfil({ ...formPerfil, [field]: e.target.value })}
+                  placeholder={placeholder}
+                  style={{ width: "100%", padding: "10px 12px", borderRadius: "8px", border: "1.5px solid rgba(15, 17, 23, 0.1)", fontSize: "14px", boxSizing: "border-box" }}
+                />
+              </div>
+            ))}
+
+            <div style={{ marginBottom: "14px" }}>
+              <label style={{ display: "block", fontSize: "13px", fontWeight: 600, color: "#7c7f8e", marginBottom: "6px", textTransform: "uppercase", letterSpacing: "0.3px" }}>Tipo Documento</label>
+              <select
+                value={formPerfil.tipo_documento}
+                onChange={(e) => setFormPerfil({ ...formPerfil, tipo_documento: e.target.value })}
+                style={{ width: "100%", padding: "10px 12px", borderRadius: "8px", border: "1.5px solid rgba(15, 17, 23, 0.1)", fontSize: "14px", boxSizing: "border-box", backgroundColor: "#fff" }}
+              >
+                <option value="cpf">CPF</option>
+                <option value="cnpj">CNPJ</option>
+              </select>
+            </div>
+
+            <div style={{ marginBottom: "24px" }}>
+              <label style={{ display: "block", fontSize: "13px", fontWeight: 600, color: "#7c7f8e", marginBottom: "6px", textTransform: "uppercase", letterSpacing: "0.3px" }}>Documento</label>
+              <input
+                type="text"
+                value={formPerfil.documento}
+                onChange={(e) => setFormPerfil({ ...formPerfil, documento: e.target.value })}
+                placeholder={formPerfil.tipo_documento === "cnpj" ? "00.000.000/0000-00" : "000.000.000-00"}
+                style={{ width: "100%", padding: "10px 12px", borderRadius: "8px", border: "1.5px solid rgba(15, 17, 23, 0.1)", fontSize: "14px", boxSizing: "border-box" }}
+              />
+            </div>
+
+            {/* Dados Fiscais */}
+            <p style={{ fontSize: "11px", fontWeight: 700, color: "#7c7f8e", textTransform: "uppercase", letterSpacing: "0.5px", margin: "0 0 12px 0" }}>Dados Fiscais</p>
+
+            {([
+              { label: "Inscrição Municipal", field: "inscricao_municipal", hint: "", placeholder: "Ex: 123456" },
+              { label: "Alíquota ISS (%)", field: "aliquota_iss", hint: "Consulte seu contador", placeholder: "Ex: 5" },
+              { label: "Código Tributário Municipal", field: "codigo_tributario_municipio", hint: "Verifique em uma nota já emitida", placeholder: "Ex: 040100" },
+              { label: "Código do Serviço", field: "codigo_servico", hint: "Ex: 0401 para consultas médicas", placeholder: "Ex: 0401" },
+            ] as const).map(({ label, field, hint, placeholder }) => (
+              <div key={field} style={{ marginBottom: "14px" }}>
+                <label style={{ display: "block", fontSize: "13px", fontWeight: 600, color: "#7c7f8e", marginBottom: "6px", textTransform: "uppercase", letterSpacing: "0.3px" }}>{label}</label>
+                <input
+                  type="text"
+                  value={formPerfil[field]}
+                  onChange={(e) => setFormPerfil({ ...formPerfil, [field]: e.target.value })}
+                  placeholder={placeholder}
+                  style={{ width: "100%", padding: "10px 12px", borderRadius: "8px", border: "1.5px solid rgba(15, 17, 23, 0.1)", fontSize: "14px", boxSizing: "border-box" }}
+                />
+                {hint && <p style={{ fontSize: "12px", color: "#7c7f8e", margin: "4px 0 0 0" }}>{hint}</p>}
+              </div>
+            ))}
+
+            <div style={{ display: "flex", gap: "12px", marginTop: "8px" }}>
+              <button
+                onClick={() => { setModalPerfilAberto(false); setMensagemPerfil(null); }}
+                style={{
+                  flex: 1, padding: "12px",
+                  backgroundColor: "rgba(0, 0, 0, 0.04)",
+                  border: "none", borderRadius: "10px",
+                  fontSize: "14px", fontWeight: 600, color: "#0f1117", cursor: "pointer"
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(0, 0, 0, 0.08)"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(0, 0, 0, 0.04)"; }}
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={salvarPerfil}
+                disabled={salvando}
+                style={{
+                  flex: 1, padding: "12px",
+                  backgroundColor: "#1a6b4a", color: "#ffffff",
+                  border: "none", borderRadius: "10px",
+                  fontSize: "14px", fontWeight: 600,
+                  cursor: salvando ? "not-allowed" : "pointer",
+                  opacity: salvando ? 0.6 : 1,
+                  transition: "all 0.2s ease"
+                }}
+                onMouseEnter={(e) => { if (!salvando) { e.currentTarget.style.backgroundColor = "#0f4a33"; e.currentTarget.style.boxShadow = "0 4px 12px rgba(26, 107, 74, 0.3)"; } }}
+                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "#1a6b4a"; e.currentTarget.style.boxShadow = "none"; }}
+              >
+                {salvando ? "⏳ Salvando..." : "✓ Salvar"}
               </button>
             </div>
           </div>

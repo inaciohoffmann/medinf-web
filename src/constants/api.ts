@@ -16,4 +16,5 @@ export const ENDPOINTS = {
   HOME_STATS: "/api/v1/notas/home",
   LISTAR_NOTAS: "/api/v1/relatorio/notas",
   EXPORTAR_CSV: "/api/v1/relatorio/exportar-csv",
+  PERFIL: "/api/v1/medico/perfil",
 };
