@@ -302,7 +302,7 @@ export default function Home() {
                         </p>
                       )}
                       <p style={{ fontSize: "12px", color: "#6b7280", fontWeight: 400, margin: 0 }}>
-                        NF {nota.numero_nf || "—"} · {new Date(nota.emitida_em || nota.criado_em).toLocaleDateString("pt-BR")}
+                        NF {nota.numero_nf || "—"} · {new Date(nota.emitida_em || nota.criado_em).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })}
                       </p>
                     </div>
                     <div style={{ display: "flex", alignItems: "center", marginLeft: "12px" }}>
