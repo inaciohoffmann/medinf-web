@@ -122,28 +122,25 @@ export default function Perfil() {
       const cnpj = formPerfil.documento.replace(/\D/g, "");
       const response = await api.get(`/api/v1/medico/buscar-cnpj/${cnpj}`);
       const dados = response.data;
-      setFormPerfil(prev => ({
-        ...prev,
-        nome: dados.razao_social || prev.nome,
-        codigo_servico: dados.sugestao_fiscal?.codigo_servico || prev.codigo_servico,
-        codigo_tributario_municipio: dados.sugestao_fiscal?.codigo_tributario_municipio || prev.codigo_tributario_municipio,
-        aliquota_iss: dados.sugestao_fiscal?.aliquota_iss || prev.aliquota_iss,
-      }));
       if (dados.servicos && dados.servicos.length > 0) {
         setServicosSugeridos(dados.servicos);
-        // Preenche automaticamente com o serviço principal
         const principal = dados.servicos.find((s: any) => s.principal) || dados.servicos[0];
         setFormPerfil(prev => ({
           ...prev,
           nome: dados.razao_social || prev.nome,
           codigo_servico: principal.codigo_servico || prev.codigo_servico,
           codigo_tributario_municipio: principal.codigo_tributario_municipio || prev.codigo_tributario_municipio,
-          aliquota_iss: principal.aliquota_iss || prev.aliquota_iss,
+          aliquota_iss: String(principal.aliquota_iss) || prev.aliquota_iss,
+        }));
+      } else {
+        setFormPerfil(prev => ({
+          ...prev,
+          nome: dados.razao_social || prev.nome,
         }));
       }
       setMensagemPerfil({
         tipo: "sucesso",
-        texto: `✓ Dados encontrados! CNAE: ${dados.cnae}. ${dados.sugestao_fiscal?.justificativa || ""}`,
+        texto: `✓ Dados encontrados! CNAE: ${dados.cnae}. ${dados.justificativa || ""}`,
       });
     } catch (error: any) {
       setMensagemPerfil({ tipo: "erro", texto: "CNPJ não encontrado na Receita Federal" });
