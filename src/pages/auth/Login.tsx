@@ -6,6 +6,7 @@ import { useAuth } from "../../hooks/useAuth";
 export default function Login() {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
+  const [verSenha, setVerSenha] = useState(false);
   const [carregando, setCarregando] = useState(false);
   const [erro, setErro] = useState("");
   const navigate = useNavigate();
@@ -56,13 +57,22 @@ export default function Login() {
 
           <div style={{ marginBottom: "24px" }}>
             <label style={{ display: "block", fontSize: "13px", fontWeight: 500, color: "#3d3f4a", marginBottom: "8px" }}>Senha</label>
-            <input
-              type="password"
-              value={senha}
-              onChange={e => setSenha(e.target.value)}
-              placeholder="••••••••"
-              style={{ width: "100%", padding: "14px 16px", borderRadius: "12px", border: "1.5px solid rgba(15,17,23,0.10)", fontSize: "15px", color: "#0f1117", backgroundColor: "#f7f6f2", outline: "none", boxSizing: "border-box" }}
-            />
+            <div style={{ position: "relative" }}>
+              <input
+                type={verSenha ? "text" : "password"}
+                value={senha}
+                onChange={e => setSenha(e.target.value)}
+                placeholder="••••••••"
+                style={{ width: "100%", padding: "14px 48px 14px 16px", borderRadius: "12px", border: "1.5px solid rgba(15,17,23,0.10)", fontSize: "15px", color: "#0f1117", backgroundColor: "#f7f6f2", outline: "none", boxSizing: "border-box" }}
+              />
+              <button
+                type="button"
+                onClick={() => setVerSenha(!verSenha)}
+                style={{ position: "absolute", right: "14px", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", fontSize: "18px", color: "#7c7f8e", padding: "0" }}
+              >
+                {verSenha ? "🙈" : "👁️"}
+              </button>
+            </div>
           </div>
 
           <button
