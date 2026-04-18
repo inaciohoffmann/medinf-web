@@ -14,6 +14,7 @@ export default function Perfil() {
   const [mensagem, setMensagem] = useState<{ tipo: "sucesso" | "erro"; texto: string } | null>(null);
   const [modalPerfilAberto, setModalPerfilAberto] = useState(false);
   const [salvando, setSalvando] = useState(false);
+  const [buscandoCnpj, setBuscandoCnpj] = useState(false);
   const [mensagemPerfil, setMensagemPerfil] = useState<{ tipo: "sucesso" | "erro"; texto: string } | null>(null);
   const [formPerfil, setFormPerfil] = useState({
     nome: "", crm: "", documento: "", tipo_documento: "cpf",
@@ -106,6 +107,35 @@ export default function Perfil() {
       });
     } finally {
       setEnviando(false);
+    }
+  };
+
+  const buscarDadosCnpj = async () => {
+    if (!formPerfil.documento || formPerfil.tipo_documento !== "cnpj") {
+      setMensagemPerfil({ tipo: "erro", texto: "Preencha o CNPJ primeiro" });
+      return;
+    }
+    setBuscandoCnpj(true);
+    setMensagemPerfil(null);
+    try {
+      const cnpj = formPerfil.documento.replace(/\D/g, "");
+      const response = await api.get(`/api/v1/medico/buscar-cnpj/${cnpj}`);
+      const dados = response.data;
+      setFormPerfil(prev => ({
+        ...prev,
+        nome: dados.razao_social || prev.nome,
+        codigo_servico: dados.sugestao_fiscal?.codigo_servico || prev.codigo_servico,
+        codigo_tributario_municipio: dados.sugestao_fiscal?.codigo_tributario_municipio || prev.codigo_tributario_municipio,
+        aliquota_iss: dados.sugestao_fiscal?.aliquota_iss || prev.aliquota_iss,
+      }));
+      setMensagemPerfil({
+        tipo: "sucesso",
+        texto: `✓ Dados encontrados! CNAE: ${dados.cnae}. ${dados.sugestao_fiscal?.justificativa || ""}`,
+      });
+    } catch (error: any) {
+      setMensagemPerfil({ tipo: "erro", texto: "CNPJ não encontrado na Receita Federal" });
+    } finally {
+      setBuscandoCnpj(false);
     }
   };
 
@@ -684,6 +714,25 @@ export default function Perfil() {
                 placeholder={formPerfil.tipo_documento === "cnpj" ? "00.000.000/0000-00" : "000.000.000-00"}
                 style={{ width: "100%", padding: "10px 12px", borderRadius: "8px", border: "1.5px solid rgba(15, 17, 23, 0.1)", fontSize: "14px", boxSizing: "border-box" }}
               />
+              <button
+                onClick={buscarDadosCnpj}
+                disabled={buscandoCnpj || formPerfil.tipo_documento !== "cnpj"}
+                style={{
+                  width: "100%",
+                  padding: "10px",
+                  backgroundColor: buscandoCnpj ? "#e8f4ef" : "#1a6b4a",
+                  color: buscandoCnpj ? "#1a6b4a" : "#ffffff",
+                  border: "none",
+                  borderRadius: "8px",
+                  fontSize: "13px",
+                  fontWeight: 600,
+                  cursor: buscandoCnpj || formPerfil.tipo_documento !== "cnpj" ? "not-allowed" : "pointer",
+                  opacity: formPerfil.tipo_documento !== "cnpj" ? 0.5 : 1,
+                  marginTop: "8px",
+                }}
+              >
+                {buscandoCnpj ? "⏳ Buscando..." : "🔍 Buscar dados do CNPJ"}
+              </button>
             </div>
 
             {/* Dados Fiscais */}
