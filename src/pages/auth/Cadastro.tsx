@@ -48,8 +48,14 @@ export default function Cadastro() {
         email,
         senha,
         documento: documento.replace(/\D/g, ""),
+        tipo_documento: documento.replace(/\D/g, "").length === 11 ? "cpf" : "cnpj",
         crm,
-        municipios: [{ codigo_ibge: municipioSelecionado.codigo_ibge, principal: true }],
+        municipios: [{ 
+          codigo_ibge: municipioSelecionado.codigo_ibge, 
+          nome_municipio: municipioSelecionado.nome_municipio,
+          uf: municipioSelecionado.uf,
+          principal: true 
+        }],
       });
       const { login } = await import("../../services/auth");
       await login(email, senha);
