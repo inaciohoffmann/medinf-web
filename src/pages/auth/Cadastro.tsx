@@ -54,7 +54,7 @@ export default function Cadastro() {
       const { login } = await import("../../services/auth");
       await login(email, senha);
       await recarregarPerfil();
-      navigate("/assinatura");
+      navigate("/onboarding");
     } catch (error: any) {
       setErro(error.response?.data?.detail || "Erro ao criar conta.");
     } finally {

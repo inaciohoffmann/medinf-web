@@ -12,6 +12,7 @@ export const ENDPOINTS = {
   CERTIFICADO_STATUS: "/api/v1/certificado/status",
   EXTRAIR_TEXTO: "/api/v1/extracao/extrair-texto",
   EXTRAIR_IMAGEM: "/api/v1/extracao/extrair-imagem",
+  EXTRAIR_NOTA_ANTERIOR: "/api/v1/extracao/extrair-nota-anterior",
   EMITIR_NF: "/api/v1/notas/emitir",
   HOME_STATS: "/api/v1/notas/home",
   LISTAR_NOTAS: "/api/v1/relatorio/notas",

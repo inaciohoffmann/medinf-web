@@ -8,6 +8,7 @@ import EmitirNF from "./pages/main/EmitirNF";
 import RevisarNF from "./pages/main/RevisarNF";
 import SucessoNF from "./pages/main/SucessoNF";
 import Perfil from "./pages/main/Perfil";
+import Onboarding from "./pages/main/Onboarding";
 
 function TelaAssinatura() {
   const { linkCheckout, recarregarPerfil, assinaturaAtiva } = useAuth();
@@ -116,6 +117,7 @@ function AppRoutes() {
       <Route path="/revisar" element={<RevisarNF />} />
       <Route path="/sucesso" element={<SucessoNF />} />
       <Route path="/perfil" element={<Perfil />} />
+      <Route path="/onboarding" element={<Onboarding />} />
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>
   );
