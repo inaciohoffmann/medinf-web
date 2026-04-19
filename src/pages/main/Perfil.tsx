@@ -24,6 +24,11 @@ export default function Perfil() {
     nome: "", crm: "", documento: "", tipo_documento: "cpf",
     inscricao_municipal: "", aliquota_iss: "",
     codigo_tributario_municipio: "", codigo_servico: "",
+    cep: "",
+    optante_simples_nacional: true,
+    regime_especial_tributacao: "",
+    codigo_opcao_simples_nacional: "",
+    regime_tributario_simples_nacional: "",
   });
 
   useEffect(() => {
@@ -37,6 +42,11 @@ export default function Perfil() {
         aliquota_iss: medico.aliquota_iss || "",
         codigo_tributario_municipio: medico.codigo_tributario_municipio || "",
         codigo_servico: medico.codigo_servico || "",
+        cep: medico.cep || "",
+        optante_simples_nacional: medico.optante_simples_nacional ?? true,
+        regime_especial_tributacao: medico.regime_especial_tributacao || "",
+        codigo_opcao_simples_nacional: medico.codigo_opcao_simples_nacional || "",
+        regime_tributario_simples_nacional: medico.regime_tributario_simples_nacional || "",
       });
     }
   }, [medico]);
@@ -813,6 +823,10 @@ export default function Perfil() {
               { label: "Alíquota ISS (%)", field: "aliquota_iss", hint: "Consulte seu contador", placeholder: "Ex: 5" },
               { label: "Código Tributário Municipal", field: "codigo_tributario_municipio", hint: "Verifique em uma nota já emitida", placeholder: "Ex: 040100" },
               { label: "Código do Serviço", field: "codigo_servico", hint: "Ex: 0401 para consultas médicas", placeholder: "Ex: 0401" },
+              { label: "CEP", field: "cep", hint: "", placeholder: "Ex: 63034250" },
+              { label: "Regime Especial Tributação", field: "regime_especial_tributacao", hint: "", placeholder: "Ex: 6 (Microempresa Municipal)" },
+              { label: "Opção Simples Nacional", field: "codigo_opcao_simples_nacional", hint: "", placeholder: "Ex: 3 (Optante ME/EPP)" },
+              { label: "Regime Tributário SN", field: "regime_tributario_simples_nacional", hint: "", placeholder: "Ex: 3 (Fed+Mun pela NFS-e)" },
             ] as const).map(({ label, field, hint, placeholder }) => (
               <div key={field} style={{ marginBottom: "14px" }}>
                 <label style={{ display: "block", fontSize: "13px", fontWeight: 600, color: "#7c7f8e", marginBottom: "6px", textTransform: "uppercase", letterSpacing: "0.3px" }}>{label}</label>
@@ -826,6 +840,20 @@ export default function Perfil() {
                 {hint && <p style={{ fontSize: "12px", color: "#7c7f8e", margin: "4px 0 0 0" }}>{hint}</p>}
               </div>
             ))}
+
+            <div style={{ marginBottom: "14px" }}>
+              <label style={{ display: "block", fontSize: "13px", fontWeight: 600, color: "#7c7f8e", marginBottom: "6px", textTransform: "uppercase", letterSpacing: "0.3px" }}>
+                Optante Simples Nacional
+              </label>
+              <select
+                value={formPerfil.optante_simples_nacional ? "true" : "false"}
+                onChange={e => setFormPerfil({ ...formPerfil, optante_simples_nacional: e.target.value === "true" })}
+                style={{ width: "100%", padding: "10px 12px", borderRadius: "8px", border: "1.5px solid rgba(15,17,23,0.1)", fontSize: "14px", boxSizing: "border-box", backgroundColor: "#fff" }}
+              >
+                <option value="true">Sim</option>
+                <option value="false">Não</option>
+              </select>
+            </div>
 
             <div style={{ display: "flex", gap: "12px", marginTop: "8px" }}>
               <button

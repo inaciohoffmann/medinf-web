@@ -98,6 +98,11 @@ export default function Onboarding() {
     aliquota_iss: "",
     codigo_tributario_municipio: "",
     codigo_servico: "",
+    cep: "",
+    optante_simples_nacional: "true",
+    regime_especial_tributacao: "",
+    codigo_opcao_simples_nacional: "",
+    regime_tributario_simples_nacional: "",
   });
 
   // ── Passo 1: enviar certificado ───────────────────────────────────────────
@@ -156,6 +161,13 @@ export default function Onboarding() {
       if (dadosFiscais.aliquota_iss) payload.aliquota_iss = parseFloat(dadosFiscais.aliquota_iss);
       if (dadosFiscais.codigo_tributario_municipio) payload.codigo_tributario_municipio = dadosFiscais.codigo_tributario_municipio;
       if (dadosFiscais.codigo_servico) payload.codigo_servico = dadosFiscais.codigo_servico;
+      if (dadosFiscais.cep) payload.cep = dadosFiscais.cep;
+      if (dadosFiscais.regime_especial_tributacao) payload.regime_especial_tributacao = dadosFiscais.regime_especial_tributacao;
+      if (dadosFiscais.codigo_opcao_simples_nacional) payload.codigo_opcao_simples_nacional = dadosFiscais.codigo_opcao_simples_nacional;
+      if (dadosFiscais.regime_tributario_simples_nacional) payload.regime_tributario_simples_nacional = dadosFiscais.regime_tributario_simples_nacional;
+      if (dadosFiscais.optante_simples_nacional !== undefined) {
+        payload.optante_simples_nacional = dadosFiscais.optante_simples_nacional === "true";
+      }
       await api.patch(ENDPOINTS.PERFIL, payload);
       setPasso(3);
     } catch (e: any) {
@@ -410,6 +422,69 @@ export default function Onboarding() {
                   />
                 </div>
 
+                <div style={{ marginBottom: "16px" }}>
+                  <label style={labelStyle}>CEP</label>
+                  <input
+                    value={dadosFiscais.cep}
+                    onChange={(e) => setDadosFiscais((p) => ({ ...p, cep: e.target.value }))}
+                    placeholder="Ex: 63034250"
+                    style={inputStyle}
+                  />
+                </div>
+                <div style={{ marginBottom: "16px" }}>
+                  <label style={labelStyle}>Regime Especial Tributação</label>
+                  <select
+                    value={dadosFiscais.regime_especial_tributacao}
+                    onChange={(e) => setDadosFiscais((p) => ({ ...p, regime_especial_tributacao: e.target.value }))}
+                    style={{ ...inputStyle, cursor: "pointer" }}
+                  >
+                    <option value="">Selecione...</option>
+                    <option value="1">1 - Microempresa Municipal</option>
+                    <option value="2">2 - Estimativa</option>
+                    <option value="3">3 - Sociedade de Profissionais</option>
+                    <option value="4">4 - Cooperativa</option>
+                    <option value="5">5 - MEI</option>
+                    <option value="6">6 - ME EPP Simples Nacional</option>
+                  </select>
+                </div>
+                <div style={{ marginBottom: "16px" }}>
+                  <label style={labelStyle}>Opção Simples Nacional</label>
+                  <select
+                    value={dadosFiscais.codigo_opcao_simples_nacional}
+                    onChange={(e) => setDadosFiscais((p) => ({ ...p, codigo_opcao_simples_nacional: e.target.value }))}
+                    style={{ ...inputStyle, cursor: "pointer" }}
+                  >
+                    <option value="">Selecione...</option>
+                    <option value="1">1 - Não optante</option>
+                    <option value="2">2 - MEI</option>
+                    <option value="3">3 - Optante ME/EPP</option>
+                  </select>
+                </div>
+                <div style={{ marginBottom: "16px" }}>
+                  <label style={labelStyle}>Regime Tributário SN</label>
+                  <select
+                    value={dadosFiscais.regime_tributario_simples_nacional}
+                    onChange={(e) => setDadosFiscais((p) => ({ ...p, regime_tributario_simples_nacional: e.target.value }))}
+                    style={{ ...inputStyle, cursor: "pointer" }}
+                  >
+                    <option value="">Selecione...</option>
+                    <option value="1">1 - Fed+Mun pelo SN</option>
+                    <option value="2">2 - Fed SN e ISSQN NFS-e</option>
+                    <option value="3">3 - Fed+Mun pela NFS-e</option>
+                  </select>
+                </div>
+                <div style={{ marginBottom: "28px" }}>
+                  <label style={labelStyle}>Optante Simples Nacional</label>
+                  <select
+                    value={dadosFiscais.optante_simples_nacional}
+                    onChange={(e) => setDadosFiscais((p) => ({ ...p, optante_simples_nacional: e.target.value }))}
+                    style={{ ...inputStyle, cursor: "pointer" }}
+                  >
+                    <option value="true">Sim</option>
+                    <option value="false">Não</option>
+                  </select>
+                </div>
+
                 <button
                   onClick={salvarDadosFiscais}
                   disabled={enviando}
@@ -417,7 +492,7 @@ export default function Onboarding() {
                 >
                   {enviando ? "Salvando..." : "Salvar dados fiscais →"}
                 </button>
-                <button onClick={() => { setModoFiscal(null); setDadosFiscais({ inscricao_municipal: "", aliquota_iss: "", codigo_tributario_municipio: "", codigo_servico: "" }); }} style={{ ...btnSecondary }}>
+                <button onClick={() => { setModoFiscal(null); setDadosFiscais({ inscricao_municipal: "", aliquota_iss: "", codigo_tributario_municipio: "", codigo_servico: "", cep: "", optante_simples_nacional: "true", regime_especial_tributacao: "", codigo_opcao_simples_nacional: "", regime_tributario_simples_nacional: "" }); }} style={{ ...btnSecondary }}>
                   Voltar
                 </button>
               </>
