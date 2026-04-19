@@ -106,7 +106,7 @@ function AppRoutes() {
       <Routes>
         <Route path="/assinatura" element={<TelaAssinatura />} />
         <Route path="/onboarding" element={<Onboarding />} />
-        <Route path="*" element={<Navigate to="/onboarding" />} />
+        <Route path="*" element={<Navigate to="/assinatura" />} />
       </Routes>
     );
   }

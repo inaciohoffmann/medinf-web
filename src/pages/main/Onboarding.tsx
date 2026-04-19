@@ -445,7 +445,7 @@ export default function Onboarding() {
               Sua conta está configurada. Agora você pode emitir notas fiscais com facilidade.
             </p>
             <button
-              onClick={() => navigate("/")}
+              onClick={() => navigate("/assinatura")}
               style={btnPrimary}
             >
               Começar a usar →
