@@ -50,10 +50,45 @@ export default function SucessoNF() {
           ))}
         </div>
 
-        {notaAtual.url_pdf && (
-          <a href={notaAtual.url_pdf} target="_blank" rel="noreferrer" style={{ display: "block", padding: "16px", backgroundColor: "#0f1117", color: "#ffffff", borderRadius: "100px", fontSize: "16px", fontWeight: 600, textDecoration: "none", marginBottom: "12px" }}>
-            📄 Baixar nota fiscal
-          </a>
+        {notaAtual.status === "emitida" && (
+          <div style={{ marginBottom: "12px" }}>
+            {notaAtual.url_pdf && (
+              <a
+                href={notaAtual.url_pdf}
+                target="_blank"
+                rel="noreferrer"
+                style={{ display: "block", padding: "16px", backgroundColor: "#1a6b4a", color: "#ffffff", borderRadius: "100px", fontSize: "16px", fontWeight: 600, textDecoration: "none", marginBottom: "8px", textAlign: "center" }}
+              >
+                📄 Baixar PDF da nota
+              </a>
+            )}
+            {notaAtual.url_xml && (
+              <a
+                href={`https://medinf-backend-production.up.railway.app${notaAtual.url_xml}`}
+                target="_blank"
+                rel="noreferrer"
+                style={{ display: "block", padding: "16px", backgroundColor: "#0f1117", color: "#ffffff", borderRadius: "100px", fontSize: "16px", fontWeight: 600, textDecoration: "none", marginBottom: "8px", textAlign: "center" }}
+              >
+                📎 Baixar XML
+              </a>
+            )}
+            {notaAtual.url_nota && (
+              <a
+                href={notaAtual.url_nota}
+                target="_blank"
+                rel="noreferrer"
+                style={{ display: "block", padding: "16px", backgroundColor: "#ffffff", color: "#1a6b4a", border: "1.5px solid #1a6b4a", borderRadius: "100px", fontSize: "16px", fontWeight: 600, textDecoration: "none", marginBottom: "8px", textAlign: "center" }}
+              >
+                🔗 Ver nota na prefeitura
+              </a>
+            )}
+          </div>
+        )}
+        {notaAtual.status === "erro" && (
+          <div style={{ backgroundColor: "#fef2f2", borderRadius: "12px", padding: "16px", marginBottom: "12px", textAlign: "left" }}>
+            <p style={{ color: "#dc2626", fontSize: "14px", fontWeight: 600, margin: "0 0 4px 0" }}>Erro na emissão</p>
+            <p style={{ color: "#dc2626", fontSize: "13px", margin: 0 }}>{notaAtual.erro_mensagem}</p>
+          </div>
         )}
 
         <button

@@ -3,13 +3,29 @@ import api from "../../services/api";
 import { ENDPOINTS } from "../../constants/api";
 import { useAuth } from "../../hooks/useAuth";
 
+type StatusNota = "pendente" | "emitida" | "cancelada" | "erro";
+
+interface NotaResumo {
+  id: string;
+  paciente_nome: string;
+  valor: number;
+  status: StatusNota;
+  numero_nf?: string;
+  emitida_em?: string;
+  criado_em: string;
+  erro_mensagem?: string;
+  url_pdf?: string;
+  url_xml?: string;
+  url_nota?: string;
+}
+
 export default function Home() {
   const { medico } = useAuth();
   const [stats, setStats] = useState<any>(null);
   const [certificado, setCertificado] = useState<any>(null);
-  const [notas, setNotas] = useState<any[]>([]);
+  const [notas, setNotas] = useState<NotaResumo[]>([]);
   const [notasPorDiaLocal, setNotasPorDiaLocal] = useState<any>({});
-  const [notasProcessando, setNotasProcessando] = useState<any[]>([]);
+  const [notasProcessando, setNotasProcessando] = useState<NotaResumo[]>([]);
   const [cancelando, setCancelando] = useState<string | null>(null);
   const [carregando, setCarregando] = useState(true);
 
@@ -55,14 +71,14 @@ export default function Home() {
       setNotas(notasRes.data);
       // Agrupa todas as notas por dia para o calendário (incluindo pendentes)
       const todasNotas = notasRes.data;
-      const porDia: any = {};
-      todasNotas.forEach((nota: any) => {
+      const porDia: Record<number, NotaResumo[]> = {};
+      todasNotas.forEach((nota: NotaResumo) => {
         const dia = new Date(nota.criado_em).getDate();
         if (!porDia[dia]) porDia[dia] = [];
         porDia[dia].push(nota);
       });
       setNotasPorDiaLocal(porDia);
-      const pendentes = notasRes.data.filter((n: any) => n.status === "pendente");
+      const pendentes = notasRes.data.filter((n: NotaResumo) => n.status === "pendente");
       setNotasProcessando(pendentes);
     } catch (error) {
       console.error(error);
@@ -306,9 +322,31 @@ export default function Home() {
                       </p>
                     </div>
                     <div style={{ display: "flex", alignItems: "center", marginLeft: "12px" }}>
-                      <p style={{ fontSize: "14px", fontWeight: 600, color: "#1a6b4a", whiteSpace: "nowrap", margin: 0 }}>
-                        R$ {Number(nota.valor).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                      </p>
+                      <div>
+                        <p style={{ fontSize: "14px", fontWeight: 600, color: "#1a6b4a", whiteSpace: "nowrap", margin: 0 }}>
+                          R$ {Number(nota.valor).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                        </p>
+                        {nota.status === "emitida" && nota.url_pdf && (
+                          <a
+                            href={nota.url_pdf}
+                            target="_blank"
+                            rel="noreferrer"
+                            style={{ fontSize: "12px", color: "#1a6b4a", fontWeight: 600, textDecoration: "none", display: "block", marginTop: "4px" }}
+                          >
+                            📄 PDF
+                          </a>
+                        )}
+                        {nota.status === "emitida" && nota.url_xml && (
+                          <a
+                            href={`https://medinf-backend-production.up.railway.app${nota.url_xml}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            style={{ fontSize: "12px", color: "#0f1117", fontWeight: 600, textDecoration: "none", display: "block", marginTop: "4px" }}
+                          >
+                            📎 XML
+                          </a>
+                        )}
+                      </div>
                       {(nota.status === "emitida" || nota.status === "pendente") && (
                         <button
                           onClick={() => cancelarNota(nota.id)}
