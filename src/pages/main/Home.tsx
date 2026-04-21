@@ -347,6 +347,28 @@ export default function Home() {
                           </a>
                         )}
                       </div>
+                      {nota.status === "emitida" && (nota.url_pdf || nota.url_nota) && (
+                        <a
+                          href={nota.url_pdf || nota.url_nota}
+                          target="_blank"
+                          rel="noreferrer"
+                          style={{
+                            marginLeft: "8px",
+                            padding: "4px 10px",
+                            backgroundColor: "rgba(26,107,74,0.08)",
+                            color: "#1a6b4a",
+                            border: "none",
+                            borderRadius: "6px",
+                            fontSize: "12px",
+                            fontWeight: 600,
+                            cursor: "pointer",
+                            textDecoration: "none",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          📄 Baixar
+                        </a>
+                      )}
                       {(nota.status === "emitida" || nota.status === "pendente") && (
                         <button
                           onClick={() => cancelarNota(nota.id)}
