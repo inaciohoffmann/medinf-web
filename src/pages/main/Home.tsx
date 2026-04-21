@@ -27,6 +27,8 @@ export default function Home() {
   const [notasPorDiaLocal, setNotasPorDiaLocal] = useState<any>({});
   const [notasProcessando, setNotasProcessando] = useState<NotaResumo[]>([]);
   const [cancelando, setCancelando] = useState<string | null>(null);
+  const [confirmandoCancelamento, setConfirmandoCancelamento] = useState<string | null>(null);
+  const [justificativaCancelamento, setJustificativaCancelamento] = useState("");
   const [carregando, setCarregando] = useState(true);
   const [dataInicio, setDataInicio] = useState("");
   const [dataFim, setDataFim] = useState("");
@@ -91,10 +93,25 @@ export default function Home() {
   };
 
   const cancelarNota = async (notaId: string) => {
-    if (!window.confirm("Tem certeza que deseja cancelar esta nota?")) return;
+    if (confirmandoCancelamento !== notaId) {
+      setConfirmandoCancelamento(notaId);
+      setJustificativaCancelamento("");
+      setTimeout(() => setConfirmandoCancelamento(null), 10000);
+      return;
+    }
+
+    if (!justificativaCancelamento.trim()) {
+      alert("Informe a justificativa do cancelamento");
+      return;
+    }
+
+    setConfirmandoCancelamento(null);
     setCancelando(notaId);
     try {
-      await api.delete(`/api/v1/notas/${notaId}/cancelar`);
+      await api.delete(`/api/v1/notas/${notaId}/cancelar`, {
+        data: { justificativa: justificativaCancelamento },
+      });
+      setJustificativaCancelamento("");
       await carregarDados();
     } catch (error: any) {
       alert(error.response?.data?.detail || "Erro ao cancelar nota");
@@ -449,25 +466,63 @@ export default function Home() {
                         </button>
                       )}
                       {(nota.status === "emitida" || nota.status === "pendente") && (
-                        <button
-                          onClick={() => cancelarNota(nota.id)}
-                          disabled={cancelando === nota.id}
-                          style={{
-                            marginLeft: "8px",
-                            padding: "4px 10px",
-                            backgroundColor: "rgba(220,38,38,0.08)",
-                            color: "#dc2626",
-                            border: "none",
-                            borderRadius: "6px",
-                            fontSize: "12px",
-                            fontWeight: 600,
-                            cursor: cancelando === nota.id ? "not-allowed" : "pointer",
-                            opacity: cancelando === nota.id ? 0.6 : 1,
-                            whiteSpace: "nowrap",
-                          }}
-                        >
-                          {cancelando === nota.id ? "..." : "Cancelar"}
-                        </button>
+                        <div style={{ marginLeft: "8px", display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
+                          <button
+                            onClick={() => cancelarNota(nota.id)}
+                            disabled={cancelando === nota.id}
+                            style={{
+                              padding: "4px 10px",
+                              backgroundColor: confirmandoCancelamento === nota.id ? "#dc2626" : "rgba(220,38,38,0.08)",
+                              color: confirmandoCancelamento === nota.id ? "#ffffff" : "#dc2626",
+                              border: "none",
+                              borderRadius: "6px",
+                              fontSize: "12px",
+                              fontWeight: 600,
+                              cursor: cancelando === nota.id ? "not-allowed" : "pointer",
+                              opacity: cancelando === nota.id ? 0.6 : 1,
+                              whiteSpace: "nowrap",
+                              transition: "all 0.2s",
+                            }}
+                          >
+                            {cancelando === nota.id ? "..." : confirmandoCancelamento === nota.id ? "Confirmar?" : "Cancelar"}
+                          </button>
+
+                          {confirmandoCancelamento === nota.id && (
+                            <div style={{ marginTop: "8px", display: "flex", gap: "4px" }}>
+                              <input
+                                value={justificativaCancelamento}
+                                onChange={(e) => setJustificativaCancelamento(e.target.value)}
+                                placeholder="Motivo do cancelamento..."
+                                style={{
+                                  flex: 1,
+                                  padding: "6px 10px",
+                                  borderRadius: "6px",
+                                  border: "1px solid rgba(220,38,38,0.3)",
+                                  fontSize: "12px",
+                                  outline: "none",
+                                }}
+                                autoFocus
+                              />
+                              <button
+                                onClick={() => {
+                                  setConfirmandoCancelamento(null);
+                                  setJustificativaCancelamento("");
+                                }}
+                                style={{
+                                  padding: "6px 10px",
+                                  backgroundColor: "#f3f4f6",
+                                  color: "#6b7280",
+                                  border: "none",
+                                  borderRadius: "6px",
+                                  fontSize: "12px",
+                                  cursor: "pointer",
+                                }}
+                              >
+                                ✕
+                              </button>
+                            </div>
+                          )}
+                        </div>
                       )}
                     </div>
                   </div>
