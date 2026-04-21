@@ -347,11 +347,17 @@ export default function Home() {
                           </a>
                         )}
                       </div>
-                      {nota.status === "emitida" && (nota.url_pdf || nota.url_nota) && (
-                        <a
-                          href={nota.url_pdf || nota.url_nota}
-                          target="_blank"
-                          rel="noreferrer"
+                      {nota.status === "emitida" && (
+                        <button
+                          onClick={() => {
+                            const token = localStorage.getItem("token");
+                            if (token) {
+                              window.open(
+                                `https://medinf-backend-production.up.railway.app/api/v1/notas/${nota.id}/pdf?token=${token}`,
+                                "_blank"
+                              );
+                            }
+                          }}
                           style={{
                             marginLeft: "8px",
                             padding: "4px 10px",
@@ -362,12 +368,11 @@ export default function Home() {
                             fontSize: "12px",
                             fontWeight: 600,
                             cursor: "pointer",
-                            textDecoration: "none",
                             whiteSpace: "nowrap",
                           }}
                         >
                           📄 Baixar
-                        </a>
+                        </button>
                       )}
                       {(nota.status === "emitida" || nota.status === "pendente") && (
                         <button
