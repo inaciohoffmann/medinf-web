@@ -28,6 +28,9 @@ export default function Home() {
   const [notasProcessando, setNotasProcessando] = useState<NotaResumo[]>([]);
   const [cancelando, setCancelando] = useState<string | null>(null);
   const [carregando, setCarregando] = useState(true);
+  const [dataInicio, setDataInicio] = useState("");
+  const [dataFim, setDataFim] = useState("");
+  const [mostrarFiltro, setMostrarFiltro] = useState(false);
 
   const mesAtual = new Date().getMonth() + 1;
   const anoAtual = new Date().getFullYear();
@@ -266,23 +269,94 @@ export default function Home() {
               border: "1px solid rgba(0,0,0,0.06)",
             }}
           >
-            <p style={{ color: "#6b7280", fontSize: "13px", fontWeight: 400, marginBottom: "12px", margin: 0 }}>Relatório</p>
-            <button
-              onClick={exportarCSV}
-              style={{
-                width: "100%",
-                backgroundColor: "#f3f4f6",
-                color: "#1a6b4a",
-                border: "none",
-                borderRadius: "8px",
-                padding: "10px",
-                fontSize: "13px",
-                fontWeight: 600,
-                cursor: "pointer",
-              }}
-            >
-              Exportar CSV
-            </button>
+            <p style={{ color: "#6b7280", fontSize: "13px", fontWeight: 400, marginBottom: "12px", margin: "0 0 12px 0" }}>Relatório</p>
+            {!mostrarFiltro ? (
+              <button
+                onClick={() => setMostrarFiltro(true)}
+                style={{
+                  width: "100%",
+                  backgroundColor: "#f3f4f6",
+                  color: "#1a6b4a",
+                  border: "none",
+                  borderRadius: "8px",
+                  padding: "10px",
+                  fontSize: "13px",
+                  fontWeight: 600,
+                  cursor: "pointer",
+                }}
+              >
+                Exportar CSV
+              </button>
+            ) : (
+              <div>
+                <div style={{ marginBottom: "8px" }}>
+                  <label style={{ fontSize: "12px", color: "#6b7280", display: "block", marginBottom: "4px" }}>Data início</label>
+                  <input
+                    type="date"
+                    value={dataInicio}
+                    onChange={(e) => setDataInicio(e.target.value)}
+                    style={{
+                      width: "100%",
+                      padding: "8px",
+                      borderRadius: "6px",
+                      border: "1px solid rgba(0,0,0,0.1)",
+                      fontSize: "13px",
+                      boxSizing: "border-box",
+                    }}
+                  />
+                </div>
+                <div style={{ marginBottom: "8px" }}>
+                  <label style={{ fontSize: "12px", color: "#6b7280", display: "block", marginBottom: "4px" }}>Data fim</label>
+                  <input
+                    type="date"
+                    value={dataFim}
+                    onChange={(e) => setDataFim(e.target.value)}
+                    style={{
+                      width: "100%",
+                      padding: "8px",
+                      borderRadius: "6px",
+                      border: "1px solid rgba(0,0,0,0.1)",
+                      fontSize: "13px",
+                      boxSizing: "border-box",
+                    }}
+                  />
+                </div>
+                <div style={{ display: "flex", gap: "8px" }}>
+                  <button
+                    onClick={() => setMostrarFiltro(false)}
+                    style={{
+                      flex: 1,
+                      backgroundColor: "#f3f4f6",
+                      color: "#6b7280",
+                      border: "none",
+                      borderRadius: "8px",
+                      padding: "10px",
+                      fontSize: "13px",
+                      fontWeight: 600,
+                      cursor: "pointer",
+                    }}
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    onClick={() => exportarCSV(dataInicio, dataFim)}
+                    style={{
+                      flex: 1,
+                      backgroundColor: "#1a6b4a",
+                      color: "#ffffff",
+                      border: "none",
+                      borderRadius: "8px",
+                      padding: "10px",
+                      fontSize: "13px",
+                      fontWeight: 600,
+                      cursor: "pointer",
+                    }}
+                  >
+                    Exportar
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -462,20 +536,24 @@ export default function Home() {
     </div>
   );
 
-  function exportarCSV() {
+  function exportarCSV(inicio?: string, fim?: string) {
     const exportarCSVAsync = async () => {
       try {
-        const response = await api.get(`${ENDPOINTS.EXPORTAR_CSV}?mes=${mesAtual}&ano=${anoAtual}`, {
+        const params = inicio && fim 
+          ? `data_inicio=${inicio}&data_fim=${fim}`
+          : `mes=${mesAtual}&ano=${anoAtual}`;
+        const response = await api.get(`${ENDPOINTS.EXPORTAR_CSV}?${params}`, {
           responseType: "blob",
         });
         const url = window.URL.createObjectURL(response.data);
         const link = document.createElement("a");
         link.href = url;
-        link.setAttribute("download", `relatorio-${mesAtual}-${anoAtual}.csv`);
+        link.setAttribute("download", `relatorio-${inicio || mesAtual}-${fim || anoAtual}.csv`);
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
         window.URL.revokeObjectURL(url);
+        setMostrarFiltro(false);
       } catch (error) {
         console.error("Erro ao exportar:", error);
       }
