@@ -52,7 +52,7 @@ function TelaAssinatura() {
         </h1>
         <p style={{ color: "#7c7f8e", marginBottom: "32px" }}>Para emitir notas fiscais você precisa de uma assinatura ativa.</p>
         <a href={linkCheckout || "#"} target="_blank" rel="noreferrer" style={{ display: "block", padding: "16px", backgroundColor: "#1a6b4a", color: "#ffffff", borderRadius: "100px", fontSize: "16px", fontWeight: 600, textDecoration: "none", marginBottom: "12px" }}>
-          Assinar por R$ 14,90/mês
+          Assinar por R$ 24,90/mês
         </a>
         <button
           onClick={verificarAssinatura}
