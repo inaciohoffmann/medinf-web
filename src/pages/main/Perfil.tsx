@@ -490,6 +490,25 @@ export default function Perfil() {
         >
           🚪 Sair da conta
         </button>
+
+        <div style={{ textAlign: "center", marginTop: "32px", paddingTop: "24px", borderTop: "1px solid rgba(15,17,23,0.06)" }}>
+          <button
+            onClick={async () => {
+              if (!window.confirm("Esta ação é permanente e irá apagar todos os seus dados. Deseja continuar?")) return;
+              if (!window.confirm("Tem certeza? Esta ação não pode ser desfeita.")) return;
+              try {
+                await api.delete("/api/v1/medico/conta");
+                localStorage.clear();
+                window.location.href = "/login";
+              } catch (e) {
+                alert("Não foi possível excluir a conta. Tente novamente.");
+              }
+            }}
+            style={{ background: "none", border: "none", color: "#dc2626", fontSize: "13px", cursor: "pointer", textDecoration: "underline" }}
+          >
+            Excluir minha conta permanentemente
+          </button>
+        </div>
       </div>
 
       {/* Modal Certificado */}
